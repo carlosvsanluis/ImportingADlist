@@ -1,0 +1,29 @@
+Import-Module ActiveDirectory
+$dnsroot = (Get-ADDomain).DNSRoot
+$i = 0
+
+function CheckValue($Value)
+{
+    if($Value) {$Value} else {"*"}
+}
+
+write-host "Importing users ..." -f Yellow
+
+$users = Import-Csv -Path .\user_AD.csv -Delimiter ";"
+$count = $users.count
+
+foreach ($user in $users )
+{
+    $i++
+    $Firstname = $user.firstname
+    $Lastname = $user.lastname
+    $Name = $Lastname + ' ' + $Firstname
+    $SamAccount = $user.username
+    $Password = (ConvertTo-SecureString $user.password -AsPlainText -force)
+    $targetOu = $user.ou
+    write-host "Creating user" $Name "..."
+
+    New-ADuser -DisplayName $Name -GivenName $FirstName -Name $Name -SurName $LastName -SAMAccountName $SamAccount -Title $Title -Path $targetOu -Enabled $True -ChangePasswordAtLogon $False -PasswordNeverExpires $True -UserPrincipalName $Upn -AccountPassword $Password -PassThru | Enable-ADAccount
+}
+
+write-host "Finished." -f Yellow
